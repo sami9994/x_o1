@@ -4,6 +4,7 @@ import 'checking.dart';
 import 'message.dart';
 import 'pcplaying.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'onclick.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,42 +20,42 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    buttonList = doInit();
+    buttonList = play();
   }
 
-  List<Button> doInit() {
+  List<Button> play() {
     player1 = new List();
     player2 = new List();
     activePlayer = 1;
 
     var gameButtons = <Button>[
-      new Button(id: 1),
-      new Button(id: 2),
-      new Button(id: 3),
-      new Button(id: 4),
-      new Button(id: 5),
-      new Button(id: 6),
-      new Button(id: 7),
-      new Button(id: 8),
-      new Button(id: 9),
+      new Button(index: 1),
+      new Button(index: 2),
+      new Button(index: 3),
+      new Button(index: 4),
+      new Button(index: 5),
+      new Button(index: 6),
+      new Button(index: 7),
+      new Button(index: 8),
+      new Button(index: 9),
     ];
     return gameButtons;
   }
 
-  void playGame(Button gb) {
+  void playGame(Button pb) {
     setState(() {
       if (activePlayer == 1) {
-        gb.bg = Colors.orange;
-        gb.text = "X";
+        pb.maincolor = Colors.orange;
+        pb.text = "X";
         activePlayer = 2;
-        player1.add(gb.id);
+        player1.add(pb.index);
       } else {
-        gb.bg = Colors.teal;
-        gb.text = "O";
+        pb.maincolor = Colors.teal;
+        pb.text = "O";
         activePlayer = 1;
-        player2.add(gb.id);
+        player2.add(pb.index);
       }
-      gb.enabled = false;
+      pb.enabled = false;
       var winner1 = checkingWinner(player1, player2);
       if (winner1 == 1) {
         showDialog(
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() {
-      buttonList = doInit();
+      buttonList = play();
     });
   }
 
@@ -104,69 +105,59 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: new GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.0,
-                  crossAxisSpacing: 9.0,
-                  mainAxisSpacing: 9.0,
+      body: Column(children: <Widget>[
+        Expanded(
+          child: new GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 1.0,
+              crossAxisSpacing: 9.0,
+              mainAxisSpacing: 9.0,
+            ),
+            padding: EdgeInsets.all(11.0),
+            itemCount: 9,
+            itemBuilder: (context, i) => new CircleAvatar(
+              child: RaisedButton(
+                padding: EdgeInsets.all(2.0),
+                onPressed: buttonList[i].enabled
+                    ? () => playGame(buttonList[i])
+                    : null,
+                child: Text(
+                  buttonList[i].text,
+                  style: TextStyle(color: Colors.white),
                 ),
-                padding: EdgeInsets.all(11.0),
-                itemCount: 9,
-                itemBuilder: (context, i) => new SizedBox(
-                  width: 100.0,
-                  height: 100.0,
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(9.0),
-                    onPressed: buttonList[i].enabled
-                        ? () => playGame(buttonList[i])
-                        : null,
-                    child: Text(
-                      buttonList[i].text,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    color: buttonList[i].bg,
-                    disabledColor: buttonList[i].bg,
-                  ),
-                ),
+                color: buttonList[i].maincolor,
+                disabledColor: buttonList[i].maincolor,
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    'Reset',
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
-                  ),
-                  color: Colors.red,
-                  onPressed: resetTheGame,
-                  padding: EdgeInsets.all(20.0),
-                ),
-                RaisedButton(
-                  child: Text(
-                    'play with pc',
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
-                  ),
-                  color: Colors.lightBlueAccent,
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return PcPlaying();
-                      },
-                    ));
-                  },
-                  padding: EdgeInsets.all(20.0),
-                ),
-              ],
-            ),
-          ]),
+          ),
+        ),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Onclick(
+                text: 'Reset',
+                renk: Colors.red,
+                onpressed: () {
+                  resetTheGame();
+                },
+              ),
+              Onclick(
+                text: 'Single Player',
+                renk: Colors.lightBlueAccent,
+                onpressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return PcPlaying();
+                    },
+                  ));
+                },
+              ),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }

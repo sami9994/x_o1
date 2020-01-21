@@ -1,10 +1,13 @@
 import 'dart:math';
+import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:x_o/home_page.dart';
 import 'game_button.dart';
 import 'checking.dart';
 import 'message.dart';
+import 'onclick.dart';
 
 class PcPlaying extends StatefulWidget {
   @override
@@ -29,15 +32,15 @@ class _PcPlayingState extends State<PcPlaying> {
     activePlayer = 1;
 
     var gameButtons = <Button>[
-      new Button(id: 1),
-      new Button(id: 2),
-      new Button(id: 3),
-      new Button(id: 4),
-      new Button(id: 5),
-      new Button(id: 6),
-      new Button(id: 7),
-      new Button(id: 8),
-      new Button(id: 9),
+      new Button(index: 1),
+      new Button(index: 2),
+      new Button(index: 3),
+      new Button(index: 4),
+      new Button(index: 5),
+      new Button(index: 6),
+      new Button(index: 7),
+      new Button(index: 8),
+      new Button(index: 9),
     ];
     return gameButtons;
   }
@@ -45,15 +48,15 @@ class _PcPlayingState extends State<PcPlaying> {
   void playGame(Button gb) {
     setState(() {
       if (activePlayer == 1) {
-        gb.bg = Colors.orange;
+        gb.maincolor = Colors.orange;
         gb.text = "X";
         activePlayer = 2;
-        player1.add(gb.id);
+        player1.add(gb.index);
       } else {
-        gb.bg = Colors.teal;
+        gb.maincolor = Colors.teal;
         gb.text = "O";
         activePlayer = 1;
-        player2.add(gb.id);
+        player2.add(gb.index);
       }
       gb.enabled = false;
       var winner1 = checkingWinner(player1, player2);
@@ -81,9 +84,10 @@ class _PcPlayingState extends State<PcPlaying> {
                     Message("Draw", "press rest to play again", resetTheGame));
           }
         } else {
-          if (activePlayer == 2)
+          if (activePlayer == 2) {
+            sleep(Duration(seconds: 1));
             playingByself();
-          else {}
+          } else {}
         }
       }
     });
@@ -101,7 +105,8 @@ class _PcPlayingState extends State<PcPlaying> {
     });
   }
 
-  void playingByself() {
+  void playingByself() async {
+    await new Future.delayed(const Duration(seconds: 1));
     var emptyIndex = List();
     var list = List.generate(10, (j) => j + 1);
     for (var cellId in list) {
@@ -112,7 +117,7 @@ class _PcPlayingState extends State<PcPlaying> {
     var ran = Random();
     var ranIndex = ran.nextInt(emptyIndex.length - 1);
     var cellId = emptyIndex[ranIndex];
-    int i = buttonList.indexWhere((p) => p.id == cellId);
+    int i = buttonList.indexWhere((p) => p.index == cellId);
     playGame(buttonList[i]);
   }
 
@@ -121,7 +126,7 @@ class _PcPlayingState extends State<PcPlaying> {
       appBar: AppBar(
         title: Center(
           child: Text(
-            '1 player mode',
+            'Single Player',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -140,9 +145,8 @@ class _PcPlayingState extends State<PcPlaying> {
                 ),
                 padding: EdgeInsets.all(11.0),
                 itemCount: 9,
-                itemBuilder: (context, i) => new SizedBox(
-                  width: 100.0,
-                  height: 100.0,
+                itemBuilder: (context, i) => new CircleAvatar(
+                  backgroundColor: Colors.lightBlueAccent,
                   child: RaisedButton(
                     padding: EdgeInsets.all(9.0),
                     onPressed: buttonList[i].enabled
@@ -152,43 +156,52 @@ class _PcPlayingState extends State<PcPlaying> {
                       buttonList[i].text,
                       style: TextStyle(color: Colors.white),
                     ),
-                    color: buttonList[i].bg,
-                    disabledColor: buttonList[i].bg,
+                    color: buttonList[i].maincolor,
+                    disabledColor: buttonList[i].maincolor,
                   ),
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    'Reset',
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //crossAxisAlignment: CrossAxisAlignment.center,
+
+                children: <Widget>[
+                  Onclick(
+                      text: 'Reset',
+                      renk: Colors.red,
+                      onpressed: () {
+                        resetTheGame();
+                      }),
+                  Onclick(
+                    text: 'MultiPlayer',
+                    renk: Colors.lightBlueAccent,
+                    onpressed: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return HomePage();
+                        },
+                      ));
+                    },
                   ),
-                  color: Colors.red,
-                  onPressed: resetTheGame,
-                  padding: EdgeInsets.all(20.0),
-                ),
-                RaisedButton(
-                  child: Text(
-                    'multyplayer',
-                    style: TextStyle(color: Colors.white, fontSize: 15.0),
-                  ),
-                  color: Colors.lightBlueAccent,
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return HomePage();
-                      },
-                    ));
-                  },
-                  padding: EdgeInsets.all(20.0),
-                ),
-              ],
+                ],
+              ),
             ),
           ]),
     );
   }
 }
+
+//child: RaisedButton(
+//padding: EdgeInsets.all(9.0),
+//onPressed: buttonList[i].enabled
+//? () => playGame(buttonList[i])
+//: null,
+//child: Text(
+//buttonList[i].text,
+//style: TextStyle(color: Colors.white),
+//),
+//color: buttonList[i].maincolor,
+//disabledColor: buttonList[i].maincolor,
+//),

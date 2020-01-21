@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Button {
-  final int id;
+  final int index;
   String text;
-  Color bg;
+  Color maincolor;
   bool enabled;
 
   Button(
-      {this.id,
+      {this.index,
       this.text = "",
-      this.bg = Colors.lightBlue,
+      this.maincolor = Colors.lightBlue,
       this.enabled = true});
 }
